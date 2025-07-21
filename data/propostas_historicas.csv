@@ -1,0 +1,11 @@
+valor,prazo_dias,escopo_tags,status
+50000,30,"gestao_obras,relatorios",aceita
+120000,90,"gestao_obras,suporte_premium,relatorios_avancados",aceita
+25000,15,"website_institucional",recusada
+30000,20,"website_institucional,blog",aceita
+80000,60,"gestao_obras,suporte_premium",recusada
+95000,60,"gestao_obras,suporte_premium,relatorios",aceita
+15000,10,"website_institucional",recusada
+200000,120,"sistema_erp_completo,suporte_premium,relatorios_avancados",aceita
+75000,45,"gestao_obras,relatorios",recusada
+45000,45,"gestao_obras",aceita

@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python/
+env/
+venv/
+*.env # Your environment variables file
+
+# IDEs
+.vscode/
+.idea/
+
+# Streamlit specific
+temp_uploads/
+app.log
+
+# Data and Models
+data/propostas.db
+models/
+propostas_a_processar/
+propostas_processadas/
+
+# Operating System
+.DS_Store
+Thumbs.db
+".env" 
