@@ -20,15 +20,31 @@ def setup_database():
                 nome_cliente TEXT NOT NULL,
                 valor_proposta REAL,
                 produto_servico TEXT,
-                proposal_type TEXT,
                 condicoes TEXT,
                 resumo_ia TEXT,
                 nome_arquivo TEXT,
-                data_processamento TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                data_processamento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                status TEXT DEFAULT 'pendente',
+                proposal_type TEXT
             )
         """)
+        
+        # Adicionar a coluna 'status' se não existir (para compatibilidade com versões anteriores)
+        try:
+            cursor.execute("ALTER TABLE propostas ADD COLUMN status TEXT DEFAULT 'pendente'")
+            logger.info("Coluna 'status' adicionada à tabela 'propostas'.")
+        except sqlite3.OperationalError:
+            pass # Coluna já existe
+
+        # Adicionar a coluna 'proposal_type' se não existir
+        try:
+            cursor.execute("ALTER TABLE propostas ADD COLUMN proposal_type TEXT")
+            logger.info("Coluna 'proposal_type' adicionada à tabela 'propostas'.")
+        except sqlite3.OperationalError:
+            pass # Coluna já existe
+
         conn.commit()
-        logger.info("Banco de dados configurado e tabela 'propostas' verificada/criada.")
+        logger.info("Banco de dados configurado e tabela 'propostas' verificada/criada/atualizada.")
     except sqlite3.Error as e:
         logger.error(f"Erro ao configurar o banco de dados: {e}", exc_info=True)
     finally:

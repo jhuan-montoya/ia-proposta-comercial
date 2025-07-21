@@ -3,20 +3,21 @@ import requests
 from dotenv import load_dotenv
 from urllib.parse import quote
 import logging
-import core.logging_config
+from . import logging_config
 
 logger = logging.getLogger(__name__)
 load_dotenv()
 
-def send_notification(data):
+def send_notification(data, whatsapp_phone_number=None, whatsapp_api_key=None):
     """
     Prepara e envia a notificação para o WhatsApp.
     """
-    whatsapp_api_key = os.getenv("WHATSAPP_API_KEY")
-    whatsapp_phone_number = os.getenv("WHATSAPP_PHONE_NUMBER")
+    # Prioriza os parâmetros passados, senão usa as variáveis de ambiente
+    phone_to_use = whatsapp_phone_number if whatsapp_phone_number else os.getenv("WHATSAPP_PHONE_NUMBER")
+    api_key_to_use = whatsapp_api_key if whatsapp_api_key else os.getenv("WHATSAPP_API_KEY")
 
-    if not whatsapp_api_key or not whatsapp_phone_number:
-        logger.warning("Chaves de API ou número de telefone do WhatsApp não configurados no .env. Pulando notificação.")
+    if not api_key_to_use or not phone_to_use:
+        logger.warning("Chaves de API ou número de telefone do WhatsApp não configurados. Pulando notificação.")
         return
 
     resumo = data.get('resumo_ia', 'Resumo não disponível.')
@@ -30,7 +31,7 @@ def send_notification(data):
         f"📄 *Resumo Automático:*\n_{resumo}_"
     )
     
-    send_whatsapp_message(whatsapp_api_key, whatsapp_phone_number, message)
+    send_whatsapp_message(api_key_to_use, phone_to_use, message)
 
 def send_whatsapp_message(api_key, phone_number, text):
     """

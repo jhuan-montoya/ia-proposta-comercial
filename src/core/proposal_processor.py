@@ -4,8 +4,8 @@ import json
 import google.generativeai as genai
 from dotenv import load_dotenv
 import logging
-import core.logging_config
-from core.ai_config_service import configure_ai
+from . import logging_config
+from .ai_config_service import configure_ai
 
 logger = logging.getLogger(__name__)
 load_dotenv()
@@ -88,4 +88,69 @@ def generate_summary(structured_data):
     except Exception as e:
         logger.error("Erro ao gerar resumo com a IA.", exc_info=True)
         return "Não foi possível gerar o resumo."
+
+def predict_acceptance(structured_data):
+    """
+    Usa o Gemini para prever se a proposta será aceita, recusada ou pendente.
+    """
+    try:
+        configure_ai()
+        model = genai.GenerativeModel('gemini-1.5-flash')
+
+        prompt = f"""
+        Com base nos seguintes dados de uma proposta comercial, preveja se ela será 'aceita', 'recusada' ou 'pendente'.
+        Considere o cliente, o valor, o tipo de proposta e as condições.
+        Responda APENAS com uma das palavras: 'aceita', 'recusada' ou 'pendente'.
+
+        Dados da Proposta:
+        - Cliente: {structured_data.get('nome_cliente', 'N/A')}
+        - Valor: R$ {structured_data.get('valor_proposta', 0.0):.2f}
+        - Produto/Serviço: {structured_data.get('produto_servico', 'N/A')}
+        - Tipo de Proposta: {structured_data.get('proposal_type', 'N/A')}
+        - Condições: {structured_data.get('condicoes', 'N/A')}
+        """
+        response = model.generate_content(prompt)
+        prediction = response.text.strip().lower()
+        if prediction in ['aceita', 'recusada', 'pendente']:
+            logger.info(f"Previsão de aceitação gerada: {prediction}")
+            return prediction
+        else:
+            logger.warning(f"Previsão inesperada da IA: {prediction}. Retornando 'pendente'.")
+            return "pendente"
+    except Exception as e:
+        logger.error(f"Erro ao prever aceitação com a IA: {e}", exc_info=True)
+        return "pendente"
+
+def summarize_pending_proposals(proposals_df):
+    """
+    Usa o Gemini para gerar um resumo das propostas pendentes.
+    Recebe um DataFrame de propostas pendentes.
+    """
+    if proposals_df.empty:
+        return "Não há propostas pendentes no momento."
+
+    model = genai.GenerativeModel('gemini-1.5-flash')
+
+    # Constrói uma string com os dados das propostas pendentes
+    proposals_text = ""
+    for index, row in proposals_df.iterrows():
+        proposals_text += f"- Cliente: {row.get('nome_cliente', 'N/A')}, Valor: R$ {row.get('valor_proposta', 0.0):.2f}, Produto: {row.get('produto_servico', 'N/A')}, Status: {row.get('status', 'N/A')}\n"
+
+    prompt = f"""
+    Com base na lista de propostas pendentes abaixo, crie um resumo conciso (máximo 100 palavras)
+    destacando o número total de propostas pendentes, o valor total envolvido e os principais clientes ou produtos/serviços.
+
+    Propostas Pendentes:
+    ---
+    {proposals_text}
+    ---
+
+    Seja direto e informativo.
+    """
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        logger.error(f"Erro ao gerar resumo de propostas pendentes com a IA: {e}", exc_info=True)
+        return "Não foi possível gerar o resumo das propostas pendentes."
 

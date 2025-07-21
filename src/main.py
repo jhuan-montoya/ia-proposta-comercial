@@ -3,12 +3,12 @@ import shutil
 import time
 from pathlib import Path
 import logging
-from core import logging_config
+from src.core import logging_config
 
-from core import database_service as database
-from core import pdf_extractor
-from core import proposal_processor as analysis_processor
-from core import notification_service as notifier
+from src.core import database_service as database
+from src.core import pdf_extractor
+from src.core import proposal_processor as analysis_processor
+from src.core import notification_service as notifier
 
 logger = logging.getLogger(__name__)
 

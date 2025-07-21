@@ -1,7 +1,7 @@
 
 import fitz  # PyMuPDF
 import logging
-import core.logging_config
+from . import logging_config
 
 logger = logging.getLogger(__name__)
 

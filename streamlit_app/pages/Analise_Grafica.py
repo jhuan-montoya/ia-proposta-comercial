@@ -1,14 +1,15 @@
 import sys
 import os
+
+# Adiciona o diretório raiz do projeto ao sys.path
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 import streamlit as st
 
-# Adiciona o diretório 'src' ao sys.path para encontrar os módulos 'core' e 'ml'
-src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if src_path not in sys.path:
-    sys.path.insert(0, src_path)
-
 import pandas as pd
-from core.database_service import get_all_proposals_as_dataframe, update_proposal_status, get_proposal_details, update_proposal_details
+from src.core.database_service import get_all_proposals_as_dataframe, update_proposal_status, get_proposal_details, update_proposal_details
 import plotly.express as px
 
 # --- Configuração da Página ---
