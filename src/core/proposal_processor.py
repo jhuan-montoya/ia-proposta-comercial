@@ -10,7 +10,7 @@ from core.ai_config_service import configure_ai
 logger = logging.getLogger(__name__)
 load_dotenv()
 
-def analyze_proposal_with_prediction(text):
+def analyze_proposal(text):
     """
     Orquestra a análise completa: extração e resumo.
     """

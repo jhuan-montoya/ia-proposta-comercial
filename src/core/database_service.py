@@ -23,7 +23,6 @@ def setup_database():
                 proposal_type TEXT,
                 condicoes TEXT,
                 resumo_ia TEXT,
-                analise_preditiva TEXT,
                 nome_arquivo TEXT,
                 data_processamento TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -43,8 +42,8 @@ def insert_proposal(data):
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO propostas (nome_cliente, valor_proposta, produto_servico, proposal_type, condicoes, resumo_ia, analise_preditiva, nome_arquivo)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO propostas (nome_cliente, valor_proposta, produto_servico, proposal_type, condicoes, resumo_ia, nome_arquivo)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (
             data.get('nome_cliente'),
             data.get('valor_proposta'),
@@ -52,7 +51,6 @@ def insert_proposal(data):
             data.get('proposal_type'),
             data.get('condicoes'),
             data.get('resumo_ia'),
-            str(data.get('analise_preditiva')), # Armazenar como string JSON
             data.get('nome_arquivo')
         ))
         conn.commit()
@@ -63,21 +61,7 @@ def insert_proposal(data):
         if conn:
             conn.close()
 
-def get_training_data():
-    """
-    Busca todas as propostas com status 'aceita' ou 'recusada' para usar como
-    dados de treinamento para o modelo preditivo.
-    """
-    try:
-        conn = sqlite3.connect(DB_NAME)
-        query = "SELECT * FROM propostas WHERE status IN ('aceita', 'recusada')"
-        df = pd.read_sql_query(query, conn)
-        conn.close()
-        logger.info(f"Buscados {len(df)} registros para treinamento.")
-        return df
-    except Exception as e:
-        logger.error("Falha ao buscar dados de treinamento do banco.", exc_info=True)
-        return pd.DataFrame()
+
 
 def get_all_proposals_as_dataframe():
     """
