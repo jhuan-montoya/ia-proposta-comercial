@@ -6,7 +6,7 @@ __pycache__/
 .Python/
 env/
 venv/
-*.env # Your environment variables file
+.env
 
 # IDEs
 .vscode/

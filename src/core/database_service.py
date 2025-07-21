@@ -1,18 +1,28 @@
 import sqlite3
 import pandas as pd
 import logging
+import os
+import sys
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-DB_NAME = "data/propostas.db"
+# Determine the project root dynamically
+# This file is in src/core, so we go up two levels to reach the project root
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+# Construct the absolute path to the database file
+DB_DIR = os.path.join(project_root, "src", "app", "data")
+DB_PATH = os.path.join(DB_DIR, "propostas.db")
 
 def setup_database():
     """Configura o banco de dados SQLite, criando a tabela se não existir."""
-    Path("data").mkdir(parents=True, exist_ok=True) # Garante que a pasta 'data' existe
+    Path(DB_DIR).mkdir(parents=True, exist_ok=True) # Garante que a pasta 'data' existe
     conn = None
     try:
-        conn = sqlite3.connect(DB_NAME)
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS propostas (
@@ -55,7 +65,7 @@ def insert_proposal(data):
     """Insere uma nova proposta no banco de dados."""
     conn = None
     try:
-        conn = sqlite3.connect(DB_NAME)
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute("""
             INSERT INTO propostas (nome_cliente, valor_proposta, produto_servico, proposal_type, condicoes, resumo_ia, nome_arquivo)
@@ -85,7 +95,7 @@ def get_all_proposals_as_dataframe():
     """
     conn = None
     try:
-        conn = sqlite3.connect(DB_NAME)
+        conn = sqlite3.connect(DB_PATH)
         df = pd.read_sql_query("SELECT * FROM propostas", conn)
         logger.info(f"Buscados {len(df)} registros de propostas.")
         return df
@@ -102,7 +112,7 @@ def update_proposal_status(proposal_id, new_status):
     """
     conn = None
     try:
-        conn = sqlite3.connect(DB_NAME)
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute("""
             UPDATE propostas
@@ -123,7 +133,7 @@ def update_proposal_details(proposal_id, new_data):
     """
     conn = None
     try:
-        conn = sqlite3.connect(DB_NAME)
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         
         # Construir a query de forma dinâmica para atualizar apenas os campos fornecidos
@@ -156,7 +166,7 @@ def get_proposal_details(proposal_id):
     """
     conn = None
     try:
-        conn = sqlite3.connect(DB_NAME)
+        conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row # Permite acessar colunas pelo nome
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM propostas WHERE id = ?", (proposal_id,))
